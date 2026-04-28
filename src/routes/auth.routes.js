@@ -29,5 +29,14 @@ authRouter.post("/register",async(req,res)=>{
         message : "User registered successfully..",user,token
     })
 })
+authRouter.get("/getuser",async (req,res)=>{
+    const token = req.cookies.Jwt_token;
+    const decoded = jwt.verify(token,process.env.JWT_SECRET)
+    const user = await userModel.findById(decoded.id)
+   res.json({
+    name : user.name,
+    email : user.email,
+   })
+})
 
 module.exports = authRouter
