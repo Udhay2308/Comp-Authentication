@@ -38,5 +38,32 @@ authRouter.get("/getuser",async (req,res)=>{
     email : user.email,
    })
 })
+authRouter.post("/login",async(req,res)=>{
+    const {email,password} = req.body;
 
+    const user = await userModel.findOne({email})
+
+    if(!user){
+        res.status(404).json({
+            message : "User not found.."
+        })
+    }
+    const isPasswordMatched = user.password === crypto.createHash("md5").update(password).digest("hex")
+
+    if(!isPasswordMatched){
+        res.status(401).json({
+            message : "Invalid password"
+        })
+    }
+    const token = jwt.sign(
+        {
+            id : user._id
+        },
+        process.env.JWT_SECRET
+    )
+    res.cookie("Jwt_token",token)
+    res.status(200).json({
+        message : "User logged In..",user,token
+    })
+})
 module.exports = authRouter
